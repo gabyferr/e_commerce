@@ -148,77 +148,74 @@ class _HomePageState extends State<HomePage> {
                 itemCount: images.length,
                 options: CarouselOptions(
                   autoPlay: true,
-                  aspectRatio: 2.0,
+                  height: 280,
                   enlargeCenterPage: true,
                 ),
                 itemBuilder: (context, index, realIdx) {
-                  return Container(
-                    child: Center(
-                      child: Image.network(
-                        images[index],
-                        fit: BoxFit.cover,
-                        width: 1000,
-                      ),
+                  return Center(
+                    child: Image.network(
+                      images[index],
+                      fit: BoxFit.cover,
+                      width: 1200,
                     ),
                   );
                 },
               ),
-              Container(
-                height: MediaQuery.of(context).size.height,
-                child: GridView.builder(
-                  itemCount: 18,
-                  padding: EdgeInsets.all(12),
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 280,
-                    mainAxisExtent: 240,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemBuilder: (context, index) => GestureDetector(
-                    child: Card(
-                      elevation: 7,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FlutterLogo(
-                              size: 80,
+              GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: 18,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 280,
+                  mainAxisExtent: 240,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemBuilder: (context, index) => GestureDetector(
+                  child: Card(
+                    elevation: 7,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          FlutterLogo(
+                            size: 80,
+                          ),
+                          Text(
+                            'descrição produto',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          Text(
+                            'R\$ $valorProd',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontSize: 18,
                             ),
-                            Text(
-                              'descrição produto',
-                              style: TextStyle(fontSize: 18),
+                          ),
+                          ListTile(
+                            leading: Icon(
+                              Icons.add,
+                              color: Colors.blue,
                             ),
-                            Text(
-                              'R\$ $valorProd',
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontSize: 18,
-                              ),
-                            ),
-                            ListTile(
-                              leading: Icon(
-                                Icons.add,
+                            shape: RoundedRectangleBorder(
+                              side: const BorderSide(
                                 color: Colors.blue,
+                                width: 1,
                               ),
-                              shape: RoundedRectangleBorder(
-                                side: const BorderSide(
-                                  color: Colors.blue,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(32),
-                              ),
-                              title: Text('Add carrinho'),
-                              contentPadding: EdgeInsets.only(left: 6),
-                              minLeadingWidth: 0,
-                            )
-                          ],
-                        ),
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            title: Text('Add carrinho'),
+                            contentPadding: EdgeInsets.only(left: 6),
+                            minLeadingWidth: 0,
+                          )
+                        ],
                       ),
                     ),
-                    onTap: () => abrirModalDetalheProduto(),
                   ),
+                  onTap: () => abrirModalDetalheProduto(),
                 ),
               ),
             ],
