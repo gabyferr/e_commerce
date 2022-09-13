@@ -232,8 +232,52 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           title: Text('Login'),
           content: Wrap(
+            spacing: 10.0,
+            runSpacing: 20.0,
             children: [
-              Text('colocar as descricoes.....'),
+              TextField(
+                decoration: InputDecoration(
+                  icon: Icon(Icons.email),
+                  labelText: 'e-mail',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+              ),
+              TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.lock),
+                  labelText: 'password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                child: Text('Outlined Button'),
+                onPressed: () {},
+                style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.resolveWith(
+                  (states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.grey;
+                    } else {
+                      return Color.fromARGB(255, 8, 22, 218);
+                    }
+                  },
+                ), side: MaterialStateProperty.resolveWith((states) {
+                  if (states.contains(MaterialState.disabled)) {
+                    return BorderSide(
+                      color: Color.fromARGB(255, 243, 33, 33),
+                    );
+                  } else {
+                    return BorderSide(
+                      color: Color.fromARGB(255, 49, 6, 241),
+                    );
+                  }
+                })),
+              ),
             ],
           ),
         );
@@ -248,9 +292,27 @@ class _HomePageState extends State<HomePage> {
         return AlertDialog(
           title: Text('Detalhes do produto'),
           content: Wrap(
+            spacing: 10.0,
+            runSpacing: 20.0,
+            alignment: WrapAlignment.center,
             children: [
-              IconButton(onPressed: () => addCarrinho(), icon: Icon(Icons.add)),
               Text('colocar as descricoes.....'),
+              ListTile(
+                leading: Icon(
+                  Icons.add,
+                  color: Colors.blue,
+                ),
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(
+                    color: Colors.blue,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                title: Text('Add carrinho'),
+                contentPadding: EdgeInsets.only(left: 6),
+                minLeadingWidth: 0,
+              )
             ],
           ),
         );
