@@ -1,4 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:e_commerce/app/modules/login/login_controller.dart';
+import 'package:e_commerce/app/modules/login/login_store.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -215,7 +217,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  onTap: () => abrirModalDetalheProduto(),
                 ),
               ),
             ],
@@ -226,95 +227,71 @@ class _HomePageState extends State<HomePage> {
   }
 
   void abrirModalLogin() {
+    final loginStore = LoginStore();
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Login'),
-          content: Wrap(
-            spacing: 10.0,
-            runSpacing: 20.0,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  icon: Icon(Icons.email),
-                  labelText: 'e-mail',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Login'),
+              content: Wrap(
+                spacing: 10.0,
+                runSpacing: 20.0,
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.email),
+                      labelText: 'e-mail',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                      ),
+                      errorText: loginStore.errorEmail,
+                    ),
+                    onChanged: (value) {
+                      loginStore.validarEmail(value);
+                      setState(() {});
+                    },
                   ),
-                ),
-              ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.lock),
-                  labelText: 'password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                        icon: Icon(Icons.lock),
+                        labelText: 'password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        ),
+                        errorText: loginStore.errorSenha),
+                    onChanged: (value) {
+                      loginStore.validarSenha(value);
+                      setState(() {});
+                    },
                   ),
-                ),
+                ],
               ),
-              OutlinedButton(
-                child: Text('Outlined Button'),
-                onPressed: () {},
-                style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.resolveWith(
-                  (states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return Colors.grey;
-                    } else {
-                      return Color.fromARGB(255, 8, 22, 218);
+              actions: [
+                OutlinedButton(
+                  child: Text('Outlined Button'),
+                  onPressed: () {
+                    if (loginStore.errorEmail == null &&
+                        loginStore.errorSenha == null) {
+                      LoginController().fazerLogin('??', '??');
                     }
                   },
-                ), side: MaterialStateProperty.resolveWith((states) {
-                  if (states.contains(MaterialState.disabled)) {
-                    return BorderSide(
-                      color: Color.fromARGB(255, 243, 33, 33),
-                    );
-                  } else {
-                    return BorderSide(
-                      color: Color.fromARGB(255, 49, 6, 241),
-                    );
-                  }
-                })),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void abrirModalDetalheProduto() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Detalhes do produto'),
-          content: Wrap(
-            spacing: 10.0,
-            runSpacing: 20.0,
-            alignment: WrapAlignment.center,
-            children: [
-              Text('colocar as descricoes.....'),
-              ListTile(
-                leading: Icon(
-                  Icons.add,
-                  color: Colors.blue,
-                ),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(
-                    color: Colors.blue,
-                    width: 1,
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all(
+                      Color.fromARGB(255, 8, 22, 218),
+                    ),
+                    side: MaterialStateProperty.all(
+                      BorderSide(
+                        color: Color.fromARGB(255, 49, 6, 241),
+                      ),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(32),
                 ),
-                title: Text('Add carrinho'),
-                contentPadding: EdgeInsets.only(left: 6),
-                minLeadingWidth: 0,
-              )
-            ],
-          ),
+              ],
+            );
+          },
         );
       },
     );
@@ -348,7 +325,50 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget abrirDrawerCarrinho() {
-    return Drawer();
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text(
+              'Carrinho',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 32,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          //if (listaDoCarrinho.isEmpty) ...[
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Ops !!',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('Nenhum produto no carrinho')
+              ],
+            ),
+          ),
+          // ] else ...[
+          //produtosCarrinho()
+          // ]
+        ],
+      ),
+    );
+  }
+
+  Widget produtosCarrinho() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: 5,
+      itemBuilder: (context, index) => Text('um item'),
+    );
   }
 
   void addCarrinho() {
