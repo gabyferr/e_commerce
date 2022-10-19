@@ -1,7 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:e_commerce/app/model/produto_model.dart';
+import 'package:e_commerce/app/modules/carrinho.dart/carrinho_controller.dart';
 import 'package:e_commerce/app/modules/login/login_controller.dart';
 import 'package:e_commerce/app/modules/login/login_store.dart';
+import 'package:e_commerce/app/services/produto_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:rx_notifier/rx_notifier.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,6 +26,17 @@ class _HomePageState extends State<HomePage> {
     'https://images.unsplash.com/photo-1586953983027-d7508a64f4bb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80',
   ];
   double valorProd = 10000.00;
+
+  final carrinhoController = Modular.get<CarrinhoController>();
+  final produtoService = ProdutoService();
+
+  late List<ProdutoModel> listaDeProdutos;
+
+  @override
+  void initState() {
+    listaDeProdutos = produtoService.getAll();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +182,7 @@ class _HomePageState extends State<HomePage> {
               GridView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: 18,
+                itemCount: listaDeProdutos.length,
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 280,
@@ -187,11 +203,11 @@ class _HomePageState extends State<HomePage> {
                             size: 80,
                           ),
                           Text(
-                            'descrição produto',
+                            listaDeProdutos[index].nome,
                             style: TextStyle(fontSize: 18),
                           ),
                           Text(
-                            'R\$ $valorProd',
+                            'R\$ ${listaDeProdutos[index].valor}',
                             style: TextStyle(
                               color: Colors.green,
                               fontSize: 18,
@@ -212,6 +228,10 @@ class _HomePageState extends State<HomePage> {
                             title: Text('Add carrinho'),
                             contentPadding: EdgeInsets.only(left: 6),
                             minLeadingWidth: 0,
+                            onTap: () {
+                              carrinhoController
+                                  .addCarrinho(listaDeProdutos[index]);
+                            },
                           )
                         ],
                       ),
@@ -333,45 +353,75 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
-            child: Text(
-              'Carrinho',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 32,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          //if (listaDoCarrinho.isEmpty) ...[
-          Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Ops !!',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  'Carrinho de compras',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 25,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Text('Nenhum produto no carrinho')
+                CircleAvatar(
+                  backgroundColor: Colors.grey.shade200,
+                  radius: 40,
+                  child: Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 54,
+                    color: Colors.red,
+                  ),
+                )
               ],
             ),
           ),
-          // ] else ...[
-          //produtosCarrinho()
-          // ]
+          if (carrinhoController.itens.value.isEmpty) ...[
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Ops !!',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text('Nenhum produto no carrinho')
+                ],
+              ),
+            ),
+          ] else ...[
+            produtosCarrinho()
+          ]
         ],
       ),
     );
   }
 
   Widget produtosCarrinho() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: 5,
-      itemBuilder: (context, index) => Text('um item'),
-    );
+    return RxBuilder(builder: (context) {
+      return ListView.builder(
+          shrinkWrap: true,
+          itemCount: carrinhoController.itens.value.length,
+          itemBuilder: (context, index) => Card(
+                child: ListTile(
+                  leading: CircleAvatar(child: FlutterLogo()),
+                  title: Text(carrinhoController.itens.value[index].nome),
+                  subtitle: Text(
+                      carrinhoController.itens.value[index].valor.toString()),
+                  trailing: Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      IconButton(onPressed: () {}, icon: Icon(Icons.remove)),
+                      Text(carrinhoController.itens.value[index].quantidade
+                          .toString()),
+                      IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+                    ],
+                  ),
+                ),
+              ));
+    });
   }
 
-  void addCarrinho() {
-    //fazer uma classe controller para o carrinho e passa essa funcao para la!!
-  }
+  void addCarrinho() {}
 }
