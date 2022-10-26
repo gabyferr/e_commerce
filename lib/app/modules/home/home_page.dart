@@ -1,12 +1,14 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:e_commerce/app/model/produto_model.dart';
-import 'package:e_commerce/app/modules/carrinho.dart/carrinho_controller.dart';
+
 import 'package:e_commerce/app/modules/login/login_controller.dart';
 import 'package:e_commerce/app/modules/login/login_store.dart';
 import 'package:e_commerce/app/services/produto_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
+
+import '../carrinho/carrinho_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,13 +19,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<String> images = [
-    'https://images.unsplash.com/photo-1586882829491-b81178aa622e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2850&q=80',
-    'https://images.unsplash.com/photo-1586871608370-4adee64d1794?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2862&q=80',
-    'https://images.unsplash.com/photo-1586901533048-0e856dff2c0d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80',
-    'https://images.unsplash.com/photo-1586902279476-3244d8d18285?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2850&q=80',
-    'https://images.unsplash.com/photo-1586943101559-4cdcf86a6f87?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1556&q=80',
-    'https://images.unsplash.com/photo-1586951144438-26d4e072b891?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80',
-    'https://images.unsplash.com/photo-1586953983027-d7508a64f4bb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80',
+    'assets/img/imgC1.jpg',
+    'assets/img/imgC2.jpg',
+    'assets/img/imgC3.jpg',
+    'assets/img/imgC4.jpg',
   ];
   double valorProd = 10000.00;
 
@@ -171,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 itemBuilder: (context, index, realIdx) {
                   return Center(
-                    child: Image.network(
+                    child: Image.asset(
                       images[index],
                       fit: BoxFit.cover,
                       width: 1200,
@@ -401,6 +400,8 @@ class _HomePageState extends State<HomePage> {
     return RxBuilder(builder: (context) {
       return ListView.builder(
           shrinkWrap: true,
+          scrollDirection: Axis.vertical,
+          controller: ScrollController(),
           itemCount: carrinhoController.itens.value.length,
           itemBuilder: (context, index) => Card(
                 child: ListTile(

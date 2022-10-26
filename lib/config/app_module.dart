@@ -1,6 +1,7 @@
-import 'package:e_commerce/app/modules/carrinho.dart/carrinho_controller.dart';
 import 'package:e_commerce/app/modules/home/home_page.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+
+import '../app/modules/carrinho/carrinho_controller.dart';
 
 class AppModule extends Module {
   @override

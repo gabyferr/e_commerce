@@ -1,5 +1,4 @@
 import 'package:e_commerce/app/model/produto_model.dart';
-import 'package:e_commerce/app/services/produto_service.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 class CarrinhoController {
