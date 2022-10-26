@@ -11,6 +11,7 @@ dependencies:
   carousel_slider: ^4.1.1
   flutter_modular: ^5.0.3
   rx_notifier: ^1.1.0
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:

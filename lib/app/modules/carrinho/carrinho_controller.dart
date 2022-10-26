@@ -5,15 +5,25 @@ class CarrinhoController {
   final itens = RxNotifier<List<ProdutoModel>>([]).asRx();
 
   void addCarrinho(ProdutoModel produto) {
-    itens.value.add(produto);
+    if (!alterarQuantidade(produto)) {
+      itens.value.add(produto);
+    }
   }
 
   void removerCarrinho(ProdutoModel produto) {
     itens.value.remove(produto);
   }
 
-  void alterarQuantidade(ProdutoModel produto, int quantidade) {
-    itens.value.map((item) => item).toList();
+  bool alterarQuantidade(ProdutoModel produto, [int? quantidade]) {
+    bool existe = false;
+    itens.value.map((item) {
+      if (item.id == produto.id) {
+        item.quantidade++;
+        existe = true;
+      }
+      return item;
+    }).toList();
+    return existe;
     //quando o item for igual ao meu produto ai eu altero a quantidade dele;
   }
 }

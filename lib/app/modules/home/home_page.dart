@@ -29,11 +29,8 @@ class _HomePageState extends State<HomePage> {
   final carrinhoController = Modular.get<CarrinhoController>();
   final produtoService = ProdutoService();
 
-  late List<ProdutoModel> listaDeProdutos;
-
   @override
   void initState() {
-    listaDeProdutos = produtoService.getAll();
     super.initState();
   }
 
@@ -178,66 +175,70 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
               ),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: listaDeProdutos.length,
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 280,
-                  mainAxisExtent: 240,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                itemBuilder: (context, index) => GestureDetector(
-                  child: Card(
-                    elevation: 7,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FlutterLogo(
-                            size: 80,
-                          ),
-                          Text(
-                            listaDeProdutos[index].nome,
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          Text(
-                            'R\$ ${listaDeProdutos[index].valor}',
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 18,
-                            ),
-                          ),
-                          ListTile(
-                            leading: Icon(
-                              Icons.add,
-                              color: Colors.blue,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              side: const BorderSide(
-                                color: Colors.blue,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            title: Text('Add carrinho'),
-                            contentPadding: EdgeInsets.only(left: 6),
-                            minLeadingWidth: 0,
-                            onTap: () {
-                              carrinhoController
-                                  .addCarrinho(listaDeProdutos[index]);
-                            },
-                          )
-                        ],
+              FutureBuilder(
+                  future: produtoService.getAll(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: snapshot.data.length,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 280,
+                        mainAxisExtent: 240,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
                       ),
-                    ),
-                  ),
-                ),
-              ),
+                      itemBuilder: (context, index) => GestureDetector(
+                        child: Card(
+                          elevation: 7,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                FlutterLogo(
+                                  size: 80,
+                                ),
+                                Text(
+                                  snapshot.data[index].nome,
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                Text(
+                                  'R\$ ${snapshot.data[index].valor}',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.add,
+                                    color: Colors.blue,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                      color: Colors.blue,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                  title: Text('Add carrinho'),
+                                  contentPadding: EdgeInsets.only(left: 6),
+                                  minLeadingWidth: 0,
+                                  onTap: () {
+                                    carrinhoController
+                                        .addCarrinho(snapshot.data[index]);
+                                  },
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
             ],
           ),
         ),
