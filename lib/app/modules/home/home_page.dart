@@ -26,13 +26,8 @@ class _HomePageState extends State<HomePage> {
   ];
   double valorProd = 10000.00;
 
-  final carrinhoController = Modular.get<CarrinhoController>();
   final produtoService = ProdutoService();
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  final carrinhoController = Modular.get<CarrinhoController>();
 
   @override
   Widget build(BuildContext context) {
@@ -176,69 +171,76 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               FutureBuilder(
-                  future: produtoService.getAll(),
-                  builder: (context, AsyncSnapshot snapshot) {
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data.length,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 280,
-                        mainAxisExtent: 240,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemBuilder: (context, index) => GestureDetector(
-                        child: Card(
-                          elevation: 7,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FlutterLogo(
-                                  size: 80,
-                                ),
-                                Text(
-                                  snapshot.data[index].nome,
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                Text(
-                                  'R\$ ${snapshot.data[index].valor}',
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                ListTile(
-                                  leading: Icon(
-                                    Icons.add,
-                                    color: Colors.blue,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    side: const BorderSide(
-                                      color: Colors.blue,
-                                      width: 1,
+                future: produtoService.getAll(),
+                builder: (context, AsyncSnapshot snapshot) {
+                  return snapshot.data == null
+                      ? Center(
+                          child: Text('Erro ao buscar produtos'),
+                        )
+                      : GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: snapshot.data.length,
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          gridDelegate:
+                              SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 280,
+                            mainAxisExtent: 240,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemBuilder: (context, index) => GestureDetector(
+                            child: Card(
+                              elevation: 7,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    FlutterLogo(
+                                      size: 80,
                                     ),
-                                    borderRadius: BorderRadius.circular(32),
-                                  ),
-                                  title: Text('Add carrinho'),
-                                  contentPadding: EdgeInsets.only(left: 6),
-                                  minLeadingWidth: 0,
-                                  onTap: () {
-                                    carrinhoController
-                                        .addCarrinho(snapshot.data[index]);
-                                  },
-                                )
-                              ],
+                                    Text(
+                                      snapshot.data[index].nome,
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    Text(
+                                      'R\$ ${snapshot.data[index].valor}',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    ListTile(
+                                      leading: Icon(
+                                        Icons.add,
+                                        color: Colors.blue,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                          color: Colors.blue,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(32),
+                                      ),
+                                      title: Text('Add carrinho'),
+                                      contentPadding: EdgeInsets.only(left: 6),
+                                      minLeadingWidth: 0,
+                                      onTap: () {
+                                        carrinhoController
+                                            .addCarrinho(snapshot.data[index]);
+                                      },
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  }),
+                        );
+                },
+              ),
             ],
           ),
         ),
@@ -347,6 +349,7 @@ class _HomePageState extends State<HomePage> {
   Widget abrirDrawerCarrinho() {
     return Drawer(
       child: ListView(
+        controller: ScrollController(),
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
@@ -366,64 +369,77 @@ class _HomePageState extends State<HomePage> {
                 ),
                 CircleAvatar(
                   backgroundColor: Colors.grey.shade200,
-                  radius: 40,
+                  radius: 36,
                   child: Icon(
                     Icons.shopping_cart_outlined,
                     size: 54,
                     color: Colors.red,
                   ),
-                )
+                ),
+                RxBuilder(builder: (context) {
+                  return Text('Total R\$: ${carrinhoController.total.value}');
+                })
               ],
             ),
           ),
-          if (carrinhoController.itens.value.isEmpty) ...[
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Ops !!',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text('Nenhum produto no carrinho')
-                ],
-              ),
-            ),
-          ] else ...[
-            produtosCarrinho()
-          ]
+          RxBuilder(
+            builder: (context) {
+              List<RxNotifier<ProdutoModel?>> produtosNoCarrinho =
+                  carrinhoController.itens.value;
+              return produtosNoCarrinho.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Ops !!',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text('Nenhum produto no carrinho')
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      controller: ScrollController(),
+                      itemCount: produtosNoCarrinho.length,
+                      itemBuilder: (context, index) => Card(
+                        child: ListTile(
+                          leading: CircleAvatar(child: FlutterLogo()),
+                          title: Text(produtosNoCarrinho[index].value!.nome),
+                          subtitle: Text(carrinhoController
+                              .itens.value[index].value!.valor
+                              .toString()),
+                          trailing: Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    carrinhoController.alterarQuantidade(
+                                        produtosNoCarrinho[index].value!.id, 1);
+                                  },
+                                  icon: Icon(Icons.remove)),
+                              RxBuilder(builder: (context) {
+                                return Text(
+                                    '${produtosNoCarrinho[index].value!.quantidade}');
+                              }),
+                              IconButton(
+                                  onPressed: () {
+                                    carrinhoController.alterarQuantidade(
+                                        produtosNoCarrinho[index].value!.id, 0);
+                                  },
+                                  icon: Icon(Icons.add)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+            },
+          ),
         ],
       ),
     );
   }
-
-  Widget produtosCarrinho() {
-    return RxBuilder(builder: (context) {
-      return ListView.builder(
-          shrinkWrap: true,
-          scrollDirection: Axis.vertical,
-          controller: ScrollController(),
-          itemCount: carrinhoController.itens.value.length,
-          itemBuilder: (context, index) => Card(
-                child: ListTile(
-                  leading: CircleAvatar(child: FlutterLogo()),
-                  title: Text(carrinhoController.itens.value[index].nome),
-                  subtitle: Text(
-                      carrinhoController.itens.value[index].valor.toString()),
-                  trailing: Wrap(
-                    alignment: WrapAlignment.center,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      IconButton(onPressed: () {}, icon: Icon(Icons.remove)),
-                      Text(carrinhoController.itens.value[index].quantidade
-                          .toString()),
-                      IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-                    ],
-                  ),
-                ),
-              ));
-    });
-  }
-
-  void addCarrinho() {}
 }
