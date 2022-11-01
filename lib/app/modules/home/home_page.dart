@@ -1,5 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:e_commerce/app/model/cliente_model.dart';
 import 'package:e_commerce/app/model/produto_model.dart';
+import 'package:e_commerce/app/modules/cliente/cliente_controller.dart';
 
 import 'package:e_commerce/app/modules/login/login_controller.dart';
 import 'package:e_commerce/app/modules/login/login_store.dart';
@@ -293,7 +295,7 @@ class _HomePageState extends State<HomePage> {
               ),
               actions: [
                 OutlinedButton(
-                  child: Text('Outlined Button'),
+                  child: Text('Login'),
                   onPressed: () {
                     if (loginStore.errorEmail == null &&
                         loginStore.errorSenha == null) {
@@ -319,6 +321,69 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void abrirModalCadastro() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Cadastro'),
+          content: Wrap(
+            spacing: 10.0,
+            runSpacing: 14.0,
+            children: [
+              TextField(
+                decoration: InputDecoration(
+                  label: Text('e-mail'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+              ),
+              TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                  label: Text('senha'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+              ),
+              TextField(
+                obscureText: true,
+                decoration: InputDecoration(
+                  label: Text('confirmi senha'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            OutlinedButton(
+              child: Text('Salvar'),
+              onPressed: () {
+                ClienteController().cadastrar(
+                    ClienteModel(email: 'ggggggfg@gmail.com', senha: '123M'));
+                //pegar os dados do campo e trazer para ca
+              },
+              style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all(
+                  Color.fromARGB(255, 8, 22, 218),
+                ),
+                side: MaterialStateProperty.all(
+                  BorderSide(
+                    color: Color.fromARGB(255, 49, 6, 241),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget abrirDrawerMenu() {
     return Drawer(
       child: ListView(
@@ -327,19 +392,12 @@ class _HomePageState extends State<HomePage> {
             child: Text('Menu'),
           ),
           ListTile(
-            title: Text('Login/Cadastro'),
+            title: Text('Login'),
             onTap: () => abrirModalLogin(),
           ),
-          ExpansionTile(
-            title: Text('Categorias'),
-            children: [
-              ListTile(
-                title: Text('Acucares'),
-              ),
-              ListTile(
-                title: Text('Bebidas'),
-              ),
-            ],
+          ListTile(
+            title: Text('Cadastro'),
+            onTap: () => abrirModalCadastro(),
           ),
         ],
       ),
@@ -377,7 +435,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 RxBuilder(builder: (context) {
-                  return Text('Total R\$: ${carrinhoController.total.value}');
+                  return Text(
+                    'Total R\$: ${carrinhoController.total.value}',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
                 })
               ],
             ),
@@ -393,9 +458,18 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Text(
                             'Ops !!',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
-                          Text('Nenhum produto no carrinho')
+                          Text(
+                            'Nenhum produto no carrinho',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
                         ],
                       ),
                     )
