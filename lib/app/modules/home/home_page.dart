@@ -1,11 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:e_commerce/app/model/cliente_model.dart';
+import 'package:e_commerce/app/components/drawer_menu_comp.dart';
 import 'package:e_commerce/app/model/produto_model.dart';
-import 'package:e_commerce/app/modules/cliente/cliente_controller.dart';
 
-import 'package:e_commerce/app/modules/login/login_controller.dart';
-import 'package:e_commerce/app/modules/login/login_store.dart';
 import 'package:e_commerce/app/services/produto_service.dart';
+import 'package:e_commerce/app/util/formatacao_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
@@ -131,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                       )
                     ],
                   ),
-                  onTap: () => abrirModalLogin(),
+                  onTap: () => DrawerMenuComp.abrirModalLogin(context),
                 ),
               ],
               Builder(
@@ -151,7 +149,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          drawer: abrirDrawerMenu(),
+          drawer: DrawerMenuComp(),
           endDrawer: abrirDrawerCarrinho(),
           body: ListView(
             children: [
@@ -166,7 +164,6 @@ class _HomePageState extends State<HomePage> {
                   return Center(
                     child: Image.asset(
                       images[index],
-                      fit: BoxFit.cover,
                       width: 1200,
                     ),
                   );
@@ -209,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                                       style: TextStyle(fontSize: 18),
                                     ),
                                     Text(
-                                      'R\$ ${snapshot.data[index].valor}',
+                                      'R\$ ${FormatacaoUtil.doblueToReal(snapshot.data[index].valor)}',
                                       style: TextStyle(
                                         color: Colors.green,
                                         fontSize: 18,
@@ -250,160 +247,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void abrirModalLogin() {
-    final loginStore = LoginStore();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Login'),
-              content: Wrap(
-                spacing: 10.0,
-                runSpacing: 20.0,
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      icon: Icon(Icons.email),
-                      labelText: 'e-mail',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                      errorText: loginStore.errorEmail,
-                    ),
-                    onChanged: (value) {
-                      loginStore.validarEmail(value);
-                      setState(() {});
-                    },
-                  ),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                        icon: Icon(Icons.lock),
-                        labelText: 'password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                        ),
-                        errorText: loginStore.errorSenha),
-                    onChanged: (value) {
-                      loginStore.validarSenha(value);
-                      setState(() {});
-                    },
-                  ),
-                ],
-              ),
-              actions: [
-                OutlinedButton(
-                  child: Text('Login'),
-                  onPressed: () {
-                    if (loginStore.errorEmail == null &&
-                        loginStore.errorSenha == null) {
-                      LoginController().fazerLogin('??', '??');
-                    }
-                  },
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(
-                      Color.fromARGB(255, 8, 22, 218),
-                    ),
-                    side: MaterialStateProperty.all(
-                      BorderSide(
-                        color: Color.fromARGB(255, 49, 6, 241),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void abrirModalCadastro() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Cadastro'),
-          content: Wrap(
-            spacing: 10.0,
-            runSpacing: 14.0,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  label: Text('e-mail'),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                ),
-              ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  label: Text('senha'),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                ),
-              ),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  label: Text('confirmi senha'),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            OutlinedButton(
-              child: Text('Salvar'),
-              onPressed: () {
-                ClienteController().cadastrar(
-                    ClienteModel(email: 'ggggggfg@gmail.com', senha: '123M'));
-                //pegar os dados do campo e trazer para ca
-              },
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all(
-                  Color.fromARGB(255, 8, 22, 218),
-                ),
-                side: MaterialStateProperty.all(
-                  BorderSide(
-                    color: Color.fromARGB(255, 49, 6, 241),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget abrirDrawerMenu() {
-    return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
-            child: Text('Menu'),
-          ),
-          ListTile(
-            title: Text('Login'),
-            onTap: () => abrirModalLogin(),
-          ),
-          ListTile(
-            title: Text('Cadastro'),
-            onTap: () => abrirModalCadastro(),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget abrirDrawerCarrinho() {
     return Drawer(
       child: ListView(
@@ -436,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 RxBuilder(builder: (context) {
                   return Text(
-                    'Total R\$: ${carrinhoController.total.value}',
+                    'Total R\$: ${FormatacaoUtil.doblueToReal(carrinhoController.total.value)}',
                     style: TextStyle(
                       fontSize: 15,
                       color: Colors.white,
@@ -482,9 +325,8 @@ class _HomePageState extends State<HomePage> {
                         child: ListTile(
                           leading: CircleAvatar(child: FlutterLogo()),
                           title: Text(produtosNoCarrinho[index].value!.nome),
-                          subtitle: Text(carrinhoController
-                              .itens.value[index].value!.valor
-                              .toString()),
+                          subtitle: Text(
+                              'R\$ ${FormatacaoUtil.doblueToReal(carrinhoController.itens.value[index].value!.valor)}'),
                           trailing: Wrap(
                             alignment: WrapAlignment.center,
                             crossAxisAlignment: WrapCrossAlignment.center,
@@ -512,6 +354,16 @@ class _HomePageState extends State<HomePage> {
                     );
             },
           ),
+          Container(
+            margin: EdgeInsets.all(12),
+            alignment: Alignment.centerRight,
+            child: ElevatedButton(
+              child: Text('Salvar'),
+              onPressed: () {
+                carrinhoController.salvarCarrinho();
+              },
+            ),
+          )
         ],
       ),
     );

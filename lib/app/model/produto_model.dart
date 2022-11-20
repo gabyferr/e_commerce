@@ -6,11 +6,14 @@ class ProdutoModel {
   String nome;
   double valor;
   int quantidade;
+  String descricao;
+
   ProdutoModel({
     required this.id,
     required this.nome,
     required this.valor,
     required this.quantidade,
+    required this.descricao,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +22,7 @@ class ProdutoModel {
       'nome': nome,
       'valor': valor,
       'quantidade': quantidade,
+      'descricao': descricao,
     };
   }
 
@@ -28,6 +32,7 @@ class ProdutoModel {
       nome: map['nome'] as String,
       valor: map['valor'] as double,
       quantidade: map['quantidade'] as int,
+      descricao: map['descricao'] as String,
     );
   }
 
