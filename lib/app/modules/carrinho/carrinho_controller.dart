@@ -1,4 +1,6 @@
+import 'package:e_commerce/app/components/drawer_menu_comp.dart';
 import 'package:e_commerce/app/model/produto_model.dart';
+import 'package:e_commerce/app/modules/login/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
@@ -48,10 +50,8 @@ class CarrinhoController extends ChangeNotifier {
     total.value = value;
   }
 
-  void salvarCarrinho() {
-    //verificar se o cliente ta logado
-    //se tiver logado mostrar modal para escolher o tipo de pagamento
-    //se nao chamar modal de login
+  void salvarCarrinho(BuildContext context) {
+    //pagina de pagamento
     Modular.to.navigate('/painel');
   }
 }

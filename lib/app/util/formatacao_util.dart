@@ -1,8 +1,5 @@
 import 'package:intl/intl.dart';
 
 class FormatacaoUtil {
-  static String doblueToReal(double value) {
-    return NumberFormat.currency(locale: 'pt_BR', customPattern: '')
-        .format(value);
-  }
+  static String doubleToReal(double? value) => value == null ? '' : NumberFormat.currency(locale: 'pt_BR', symbol: '', decimalDigits: 2).format(value);
 }

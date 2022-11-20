@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:e_commerce/app/components/drawer_menu_comp.dart';
 import 'package:e_commerce/app/model/produto_model.dart';
+import 'package:e_commerce/app/modules/login/login_controller.dart';
 
 import 'package:e_commerce/app/services/produto_service.dart';
 import 'package:e_commerce/app/util/formatacao_util.dart';
@@ -64,47 +65,30 @@ class _HomePageState extends State<HomePage> {
                 padding: EdgeInsets.only(left: 26),
               );
             }),
-            title: Container(
+            title: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 22),
-                    child: CircleAvatar(
-                      radius: 26,
-                      child: Image.asset(
-                        'assets/img/logo.png',
-                      ),
+              child: TextField(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  prefixIcon: Container(
+                    padding: EdgeInsets.only(right: 12),
+                    alignment: Alignment.centerRight,
+                    child: Icon(
+                      Icons.search,
+                      color: Colors.blue,
                     ),
                   ),
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        prefixIcon: Container(
-                          padding: EdgeInsets.only(right: 12),
-                          alignment: Alignment.centerRight,
-                          child: Icon(
-                            Icons.search,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(26),
-                          borderSide:
-                              BorderSide(color: Colors.white, width: 2.0),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(26),
-                          borderSide:
-                              BorderSide(color: Colors.white, width: 2.0),
-                        ),
-                        contentPadding: EdgeInsets.all(8),
-                      ),
-                    ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(26),
+                    borderSide: BorderSide(color: Colors.white, width: 2.0),
                   ),
-                ],
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(26),
+                    borderSide: BorderSide(color: Colors.white, width: 2.0),
+                  ),
+                  contentPadding: EdgeInsets.all(8),
+                ),
               ),
             ),
             actions: [
@@ -157,13 +141,14 @@ class _HomePageState extends State<HomePage> {
                 itemCount: images.length,
                 options: CarouselOptions(
                   autoPlay: true,
-                  height: 280,
+                  height: MediaQuery.of(context).size.width < 800 ? 280 : 380,
                   enlargeCenterPage: true,
                 ),
                 itemBuilder: (context, index, realIdx) {
                   return Center(
                     child: Image.asset(
                       images[index],
+                      fit: BoxFit.fill,
                       width: 1200,
                     ),
                   );
@@ -173,8 +158,14 @@ class _HomePageState extends State<HomePage> {
                 future: produtoService.getAll(),
                 builder: (context, AsyncSnapshot snapshot) {
                   return snapshot.data == null
-                      ? Center(
-                          child: Text('Erro ao buscar produtos'),
+                      ? Container(
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.only(top: MediaQuery.of(context).size.width / 2),
+                          child: Text(
+                            'Erro ao buscar produtos',
+                            style: TextStyle(
+                                color: Colors.red, fontWeight: FontWeight.bold),
+                          ),
                         )
                       : GridView.builder(
                           shrinkWrap: true,
@@ -206,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                                       style: TextStyle(fontSize: 18),
                                     ),
                                     Text(
-                                      'R\$ ${FormatacaoUtil.doblueToReal(snapshot.data[index].valor)}',
+                                      'R\$ ${FormatacaoUtil.doubleToReal(snapshot.data[index].valor)}',
                                       style: TextStyle(
                                         color: Colors.green,
                                         fontSize: 18,
@@ -279,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 RxBuilder(builder: (context) {
                   return Text(
-                    'Total R\$: ${FormatacaoUtil.doblueToReal(carrinhoController.total.value)}',
+                    'Total R\$: ${FormatacaoUtil.doubleToReal(carrinhoController.total.value)}',
                     style: TextStyle(
                       fontSize: 15,
                       color: Colors.white,
@@ -326,7 +317,7 @@ class _HomePageState extends State<HomePage> {
                           leading: CircleAvatar(child: FlutterLogo()),
                           title: Text(produtosNoCarrinho[index].value!.nome),
                           subtitle: Text(
-                              'R\$ ${FormatacaoUtil.doblueToReal(carrinhoController.itens.value[index].value!.valor)}'),
+                              'R\$ ${FormatacaoUtil.doubleToReal(carrinhoController.itens.value[index].value!.valor)}'),
                           trailing: Wrap(
                             alignment: WrapAlignment.center,
                             crossAxisAlignment: WrapCrossAlignment.center,
@@ -354,16 +345,21 @@ class _HomePageState extends State<HomePage> {
                     );
             },
           ),
-          Container(
-            margin: EdgeInsets.all(12),
-            alignment: Alignment.centerRight,
-            child: ElevatedButton(
-              child: Text('Salvar'),
-              onPressed: () {
-                carrinhoController.salvarCarrinho();
-              },
+          if (!carrinhoController.itens.value.isNotEmpty) ...[
+            Container(
+              margin: EdgeInsets.all(12),
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                child: Text('Salvar'),
+                onPressed: () {
+                  if (!Modular.get<LoginController>().isLogado) {
+                    return DrawerMenuComp.abrirModalLogin(context);
+                  }
+                  carrinhoController.salvarCarrinho(context);
+                },
+              ),
             ),
-          )
+          ]
         ],
       ),
     );

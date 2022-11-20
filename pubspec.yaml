@@ -13,6 +13,7 @@ dependencies:
   rx_notifier: ^1.1.0
   http: ^0.13.5
   intl: ^0.17.0 
+  animated_snack_bar: ^0.3.0
 
 dev_dependencies:
   flutter_test:

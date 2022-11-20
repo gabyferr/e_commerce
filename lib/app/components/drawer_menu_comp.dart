@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 class DrawerMenuComp extends StatelessWidget {
-  const DrawerMenuComp({Key? key}) : super(key: key);
+  DrawerMenuComp({Key? key}) : super(key: key);
+
+  final loginCtrl = Modular.get<LoginController>();
 
   @override
   Widget build(BuildContext context) {
@@ -16,33 +18,56 @@ class DrawerMenuComp extends StatelessWidget {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Text('Menu'),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 46,
+                  child: Image.asset(
+                    'assets/img/logo.png',
+                  ),
+                ),
+                Text('Menu', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
           ),
-          // if (!true) ...[
-          //   //! logica para sasber se ta logado alguem ou nao
-          //   ListTile(
-          //     title: Text('Login'),
-          //     onTap: () => abrirModalLogin(context),
-          //   ),
-          //   ListTile(
-          //     title: Text('Cadastro'),
-          //     onTap: () => abrirModalCadastro(context),
-          //   )
-          // ] else ...[
-          ListTile(
-            title: Text('Sair'),
-            onTap: () {
-              Modular.to.navigate('/');
-            },
-          ),
+          if (Modular.to.path == '/painel') ...[
+            ListTile(
+              title: Text('Home'),
+              onTap: () => Modular.to.navigate('/'),
+            ),
+          ] else ...[
+            ListTile(
+              title: Text('Painel'),
+              onTap: () => Modular.to.navigate('/painel'),
+            ),
+          ],
+          if (!loginCtrl.isLogado) ...[
+            ListTile(
+              title: Text('Login'),
+              onTap: () => abrirModalLogin(context),
+            ),
+            ListTile(
+              title: Text('Cadastro'),
+              onTap: () => abrirModalCadastro(context),
+            )
+          ] else ...[
+            ListTile(
+              title: Text('Sair'),
+              onTap: () {
+                loginCtrl.deslogar();
+              },
+            ),
+          ],
         ],
-        // ],
       ),
     );
   }
 
-  static void abrirModalLogin(context) {
+  static void abrirModalLogin(BuildContext context) {
     final loginStore = LoginStore();
+    TextEditingController emailText = TextEditingController();
+    TextEditingController senhaText = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) {
@@ -51,10 +76,11 @@ class DrawerMenuComp extends StatelessWidget {
             return AlertDialog(
               title: Text('Login'),
               content: Wrap(
-                spacing: 10.0,
-                runSpacing: 20.0,
+                spacing: 10,
+                runSpacing: 10,
                 children: [
                   TextField(
+                    controller: emailText,
                     decoration: InputDecoration(
                       icon: Icon(Icons.email),
                       labelText: 'e-mail',
@@ -68,18 +94,17 @@ class DrawerMenuComp extends StatelessWidget {
                       setState(() {});
                     },
                   ),
-
-
-
                   TextField(
+                    controller: senhaText,
                     obscureText: true,
                     decoration: InputDecoration(
-                        icon: Icon(Icons.lock),
-                        labelText: 'password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                        ),
-                        errorText: loginStore.errorSenha),
+                      icon: Icon(Icons.lock),
+                      labelText: 'password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                      ),
+                      errorText: loginStore.errorSenha,
+                    ),
                     onChanged: (value) {
                       loginStore.validarSenha(value);
                       setState(() {});
@@ -93,7 +118,8 @@ class DrawerMenuComp extends StatelessWidget {
                   onPressed: () {
                     if (loginStore.errorEmail == null &&
                         loginStore.errorSenha == null) {
-                      LoginController().fazerLogin('??', '??');
+                      Modular.get<LoginController>()
+                          .fazerLogin(emailText.text, senhaText.text);
                     }
                   },
                   style: ButtonStyle(
@@ -115,7 +141,7 @@ class DrawerMenuComp extends StatelessWidget {
     );
   }
 
-  void abrirModalCadastro(context) {
+  static void abrirModalCadastro(context) {
     TextEditingController nomeTEdt = TextEditingController();
     TextEditingController emailTEdt = TextEditingController();
     TextEditingController senhaTEdt = TextEditingController();
@@ -222,6 +248,7 @@ class DrawerMenuComp extends StatelessWidget {
                           ),
                         ),
                       ),
+                      SizedBox(width: 12),
                       Expanded(
                         flex: 3,
                         child: TextField(
@@ -263,27 +290,29 @@ class DrawerMenuComp extends StatelessWidget {
             OutlinedButton(
               child: Text('Salvar'),
               onPressed: () {
-                ClienteController().cadastrar(
+                Modular.get<ClienteController>().cadastrar(
                   ClienteModel(
-                      id: 0,
-                      nome: nomeEnderecoTEdt.text,
-                      usuario: UsuarioModel(
-                          id: 0,
-                          email: emailTEdt.text,
-                          senha: senhaTEdt.text,
-                          permissao: 0),
-                      enderecos: [
-                        EnderecoModel(
-                            id: 0,
-                            descricao: nomeEnderecoTEdt.text,
-                            cep: cepTEdt.text,
-                            bairro: bairroTEdt.text,
-                            logradouro: ruaTEdt.text,
-                            localidade: cidadeTEdt.text,
-                            uf: estadoTEdt.text)
-                      ]),
+                    id: 0,
+                    nome: nomeEnderecoTEdt.text,
+                    usuario: UsuarioModel(
+                        id: 0,
+                        email: emailTEdt.text,
+                        senha: senhaTEdt.text,
+                        permissao: 0),
+                    enderecos: [
+                      EnderecoModel(
+                        id: 0,
+                        descricao: nomeEnderecoTEdt.text,
+                        cep: cepTEdt.text,
+                        bairro: bairroTEdt.text,
+                        logradouro: ruaTEdt.text,
+                        localidade: cidadeTEdt.text,
+                        uf: estadoTEdt.text,
+                      )
+                    ],
+                  ),
+                  context,
                 );
-                //pegar os dados do campo e trazer para ca
               },
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all(
