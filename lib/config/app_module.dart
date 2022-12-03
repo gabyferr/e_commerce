@@ -1,6 +1,7 @@
 import 'package:e_commerce/app/modules/cliente/cliente_controller.dart';
 import 'package:e_commerce/app/modules/home/home_page.dart';
 import 'package:e_commerce/app/modules/login/login_controller.dart';
+import 'package:e_commerce/app/modules/pagamento/pagamento_page.dart';
 import 'package:e_commerce/app/modules/painel/painel_page.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
@@ -18,5 +19,6 @@ class AppModule extends Module {
   List<ModularRoute> get routes => [
         ChildRoute('/', child: (context, args) => HomePage()),
         ChildRoute('/painel', child: (context, args) => PainelPage()),
+        ChildRoute('/pagamento', child: (context, args) => PagamentoPage()),
       ];
 }

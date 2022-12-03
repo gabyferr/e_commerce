@@ -1,5 +1,9 @@
 import 'package:e_commerce/app/components/drawer_menu_comp.dart';
+import 'package:e_commerce/app/modules/login/login_controller.dart';
+import 'package:e_commerce/app/pagamento/pagamento_contoller.dart';
+import 'package:e_commerce/app/pagamento/pagamento_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
 class PainelPage extends StatefulWidget {
   const PainelPage({Key? key}) : super(key: key);
