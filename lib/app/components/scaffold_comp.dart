@@ -1,19 +1,162 @@
 import 'package:e_commerce/app/model/cliente_model.dart';
 import 'package:e_commerce/app/model/endereco_model.dart';
 import 'package:e_commerce/app/model/usuario_model.dart';
+import 'package:e_commerce/app/modules/carrinho/carrinho_controller.dart';
+import 'package:e_commerce/app/modules/carrinho/drawer_carrinho_widget.dart';
 import 'package:e_commerce/app/modules/cliente/cliente_controller.dart';
 import 'package:e_commerce/app/modules/login/login_controller.dart';
 import 'package:e_commerce/app/modules/login/login_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:rx_notifier/rx_notifier.dart';
 
-class DrawerMenuComp extends StatelessWidget {
-  DrawerMenuComp({Key? key}) : super(key: key);
+class ScaffoldComp extends StatelessWidget {
+  final Widget body;
+  final CarrinhoController? carrinhoController;
 
-  final loginCtrl = Modular.get<LoginController>();
+  const ScaffoldComp({Key? key, required this.body, this.carrinhoController})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.blueAccent,
+                Colors.white,
+              ],
+            ),
+          ),
+        ),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          drawerEnableOpenDragGesture: false,
+          appBar: AppBar(
+            backgroundColor: Colors.indigo,
+            toolbarHeight: 82,
+            leading: Builder(builder: (context) {
+              return IconButton(
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                icon: Icon(
+                  Icons.list,
+                  color: Colors.white,
+                  size: 36,
+                ),
+                padding: EdgeInsets.only(left: 26),
+              );
+            }),
+            title: carrinhoController != null
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        prefixIcon: Container(
+                          padding: EdgeInsets.only(right: 12),
+                          alignment: Alignment.centerRight,
+                          child: Icon(
+                            Icons.search,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(26),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 2.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(26),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 2.0),
+                        ),
+                        contentPadding: EdgeInsets.all(8),
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+            actions: [
+              if (carrinhoController != null) ...[
+                if (MediaQuery.of(context).size.width > 800) ...[
+                  InkWell(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.login,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6, right: 18),
+                          child: Text(
+                            'Faça seu login.\nOu cadastre-se!',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    onTap: () => abrirModalLogin(context),
+                  ),
+                ],
+                RxBuilder(
+                  builder: (context) {
+                    return IconButton(
+                      padding: EdgeInsets.only(right: 26),
+                      onPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                      icon: Stack(
+                        children: [
+                          Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 36,
+                            color: Colors.white,
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: CircleAvatar(
+                              child: Text(
+                                '${carrinhoController!.itens.value.length}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              backgroundColor: Colors.red,
+                              maxRadius: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+          drawer: drawerMenu(context),
+          endDrawer: carrinhoController != null
+              ? DrawerCarrinhoWidget(carrinhoController!).abrirDrawerCarrinho()
+              : null,
+          body: body,
+        ),
+      ],
+    );
+  }
+
+  Widget drawerMenu(BuildContext context) {
+    final loginCtrl = Modular.get<LoginController>();
     return Drawer(
       child: ListView(
         children: [
@@ -114,7 +257,7 @@ class DrawerMenuComp extends StatelessWidget {
               ),
               actions: [
                 OutlinedButton(
-                  child: Text('Login'),
+                  child: Text('Entrar'),
                   onPressed: () {
                     if (loginStore.errorEmail == null &&
                         loginStore.errorSenha == null) {
