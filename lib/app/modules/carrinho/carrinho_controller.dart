@@ -1,29 +1,34 @@
+import 'package:e_commerce/app/components/scaffold_comp.dart';
+import 'package:e_commerce/app/components/snackbar_comp.dart';
+import 'package:e_commerce/app/model/item_pedido_model.dart';
 import 'package:e_commerce/app/model/produto_model.dart';
+import 'package:e_commerce/app/modules/login/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 class CarrinhoController extends ChangeNotifier {
-  final itens = RxNotifier<List<RxNotifier<ProdutoModel?>>>([]);
+  final itens = RxNotifier<List<RxNotifier<ItemPedidoModel?>>>([]);
 
   void addCarrinho(ProdutoModel produto) {
     if (!alterarQuantidade(produto.id, 0)) {
-      produto.quantidade = 1;
-      itens.value.add(RxNotifier(produto));
+      itens.value.add(RxNotifier(ItemPedidoModel(
+        quantidade: 1,
+        produto: produto,
+        total: produto.valor
+      )));
       calculaTotal();
     }
   }
 
   void removerCarrinho(int id) {
-    itens.value.removeWhere((item) => item.value?.id == id);
+    itens.value.removeWhere((item) => item.value!.produto.id == id);
     itens.notifyListeners();
   }
 
   bool alterarQuantidade(int id, int operacao) {
-    bool existe = false;
-    RxNotifier<ProdutoModel?> item = itens.value.firstWhere(
-        (item) => item.value!.id == id,
-        orElse: () => RxNotifier(null));
+    bool existe = false; 
+    RxNotifier<ItemPedidoModel?> item = isInListItens(id);
     if (item.value != null) {
       if (operacao == 0) {
         item.value!.quantidade++;
@@ -43,13 +48,27 @@ class CarrinhoController extends ChangeNotifier {
   final total = RxNotifier<double>(0);
   void calculaTotal() {
     double value = 0;
-    for (RxNotifier<ProdutoModel?> item in itens.value) {
-      value += (item.value?.valor ?? 0) * (item.value?.quantidade ?? 0);
+    for (RxNotifier<ItemPedidoModel?> item in itens.value) {
+      value += (item.value?.total ?? 0) * (item.value?.quantidade ?? 0);
     }
     total.value = value;
   }
 
-  void salvarCarrinho(BuildContext context) {
-    Modular.to.navigate('/pagamento');
+  RxNotifier<ItemPedidoModel?> isInListItens(int id) => itens.value.firstWhere((item) => item.value!.produto.id == id, orElse: () => RxNotifier(null));
+
+  final currentStep = RxNotifier<int>(0);
+  Future<void> progressStep(BuildContext context) async {
+    if (currentStep.value == 0 && !Modular.get<LoginController>().isLogado) {
+      if (!(await ScaffoldComp.abrirModalLogin(context) ?? false)) {
+        SnackbarComp.build(context, 'Atenção', 'Usuario ou senha incorretos');
+        return;
+      }
+    }
+    if (currentStep.value == 2) {
+      //! enviar pedido para a api
+      Modular.dispose<CarrinhoController>();
+      return Modular.to.navigate('/painel');
+    }
+    currentStep.value++;
   }
 }

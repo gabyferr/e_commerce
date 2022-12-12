@@ -23,7 +23,6 @@ class _PainelPageState extends State<PainelPage> {
               child: ListView.builder(
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
-                controller: ScrollController(),
                 itemCount: 8,
                 itemBuilder: (context, index) {
                   return Card(
@@ -32,38 +31,7 @@ class _PainelPageState extends State<PainelPage> {
                       subtitle: Text('valor'),
                       trailing: IconButton(
                         icon: Icon(Icons.open_in_new),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text(
-                                  'Detalhes do pedido:',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                content: Wrap(
-                                  children: [
-                                    Text('detalhes'),
-                                    Text('detalhes'),
-                                    Text('detalhes'),
-                                    Text('detalhes'),
-                                    Text('detalhes'),
-                                  ],
-                                ),
-                                actions: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Modular.to.pop();
-                                    },
-                                    child: Text('Voltar'),
-                                  ),
-                                ],
-                              ).build(context);
-                            },
-                          );
-
-                          //! abrir uma modal qe mostre todos os dados do pedido
-                        },
+                        onPressed: () => modalDetalhesPedido(),
                       ),
                     ),
                   );
@@ -73,6 +41,37 @@ class _PainelPageState extends State<PainelPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void modalDetalhesPedido() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Detalhes do pedido:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Wrap(
+            children: [
+              Text('detalhes'),
+              Text('detalhes'),
+              Text('detalhes'),
+              Text('detalhes'),
+              Text('detalhes'),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Modular.to.pop();
+              },
+              child: Text('Voltar'),
+            ),
+          ],
+        ).build(context);
+      },
     );
   }
 }

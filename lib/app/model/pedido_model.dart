@@ -1,16 +1,15 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-
 import 'package:e_commerce/app/model/cliente_model.dart';
 import 'package:e_commerce/app/model/endereco_model.dart';
-import 'package:e_commerce/app/model/produto_model.dart';
+import 'package:e_commerce/app/model/item_pedido_model.dart';
 
 class PedidoModel {
   int id;
   ClienteModel cliente;
   String dataEfetuado;
   double total;
-  List<ProdutoModel> itens;
+  List<ItemPedidoModel> itens;
   EnderecoModel endereco;
   int status;
 
@@ -39,15 +38,11 @@ class PedidoModel {
   factory PedidoModel.fromMap(Map<String, dynamic> map) {
     return PedidoModel(
       id: map['id'] as int,
-      cliente: ClienteModel.fromMap(map['cliente'] as Map<String, dynamic>),
+      cliente: ClienteModel.fromMap(map['cliente'] as Map<String,dynamic>),
       dataEfetuado: map['dataEfetuado'] as String,
       total: map['total'] as double,
-      itens: List<ProdutoModel>.from(
-        (map['itens'] as List<int>).map<ProdutoModel>(
-          (x) => ProdutoModel.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
-      endereco: EnderecoModel.fromMap(map['endereco'] as Map<String, dynamic>),
+      itens: List<ItemPedidoModel>.from((map['itens'] as List<int>).map<ItemPedidoModel>((x) => ItemPedidoModel.fromMap(x as Map<String,dynamic>),),),
+      endereco: EnderecoModel.fromMap(map['endereco'] as Map<String,dynamic>),
       status: map['status'] as int,
     );
   }

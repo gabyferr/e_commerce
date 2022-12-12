@@ -6,6 +6,7 @@ class UsuarioModel {
   String email;
   String senha;
   int permissao;
+  
   UsuarioModel({
     required this.id,
     required this.email,

@@ -5,17 +5,19 @@ import 'package:e_commerce/app/modules/carrinho/carrinho_controller.dart';
 import 'package:e_commerce/app/modules/carrinho/drawer_carrinho_widget.dart';
 import 'package:e_commerce/app/modules/cliente/cliente_controller.dart';
 import 'package:e_commerce/app/modules/login/login_controller.dart';
-import 'package:e_commerce/app/modules/login/login_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 class ScaffoldComp extends StatelessWidget {
   final Widget body;
-  final CarrinhoController? carrinhoController;
+  final CarrinhoController? carrinhoCtrl;
 
-  const ScaffoldComp({Key? key, required this.body, this.carrinhoController})
-      : super(key: key);
+  const ScaffoldComp({
+    Key? key,
+    required this.body,
+    this.carrinhoCtrl,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,29 +41,37 @@ class ScaffoldComp extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: Colors.indigo,
             toolbarHeight: 82,
-            leading: Builder(builder: (context) {
-              return IconButton(
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                icon: Icon(
-                  Icons.list,
-                  color: Colors.white,
-                  size: 36,
-                ),
-                padding: EdgeInsets.only(left: 26),
-              );
-            }),
-            title: carrinhoController != null
+            leading: Builder(
+              builder: (context) {
+                return IconButton(
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                  icon: Icon(
+                    Icons.list,
+                    color: Colors.white,
+                    size: 36,
+                  ),
+                  padding: EdgeInsets.only(left: 26),
+                );
+              },
+            ),
+            title: carrinhoCtrl != null
                 ? Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: TextField(
+                    child: TextFormField(
+                      onChanged: (value) {
+                        print(value);
+                      },
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 21,
+                      ),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
-                        prefixIcon: Container(
+                        suffixIcon: Container(
                           padding: EdgeInsets.only(right: 12),
-                          alignment: Alignment.centerRight,
                           child: Icon(
                             Icons.search,
                             color: Colors.blue,
@@ -83,8 +93,9 @@ class ScaffoldComp extends StatelessWidget {
                   )
                 : SizedBox.shrink(),
             actions: [
-              if (carrinhoController != null) ...[
-                if (MediaQuery.of(context).size.width > 800) ...[
+              if (carrinhoCtrl != null) ...[
+                if (MediaQuery.of(context).size.width > 800 &&
+                    !Modular.get<LoginController>().isLogado) ...[
                   InkWell(
                     child: Row(
                       children: [
@@ -127,7 +138,7 @@ class ScaffoldComp extends StatelessWidget {
                             right: 0,
                             child: CircleAvatar(
                               child: Text(
-                                '${carrinhoController!.itens.value.length}',
+                                '${carrinhoCtrl!.itens.value.length}',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -146,8 +157,8 @@ class ScaffoldComp extends StatelessWidget {
             ],
           ),
           drawer: drawerMenu(context),
-          endDrawer: carrinhoController != null
-              ? DrawerCarrinhoWidget(carrinhoController!).abrirDrawerCarrinho()
+          endDrawer: carrinhoCtrl != null
+              ? DrawerCarrinhoWidget(carrinhoCtrl!).abrirDrawerCarrinho()
               : null,
           body: body,
         ),
@@ -157,61 +168,65 @@ class ScaffoldComp extends StatelessWidget {
 
   Widget drawerMenu(BuildContext context) {
     final loginCtrl = Modular.get<LoginController>();
-    return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 46,
-                  child: Image.asset(
-                    'assets/img/logo.png',
+
+    return RxBuilder(builder: (context) {
+      return Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 46,
+                    child: Image.asset(
+                      'assets/img/logo.png',
+                    ),
                   ),
+                  Text('Menu', style: TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            if (loginCtrl.isLogado) ...[
+              if (Modular.to.path == '/painel') ...[
+                ListTile(
+                  title: Text('Home'),
+                  onTap: () => Modular.to.navigate('/'),
                 ),
-                Text('Menu', style: TextStyle(fontWeight: FontWeight.bold)),
+              ] else if (loginCtrl.isLogado) ...[
+                ListTile(
+                  title: Text('Painel'),
+                  onTap: () => Modular.to.navigate('/painel'),
+                ),
               ],
-            ),
-          ),
-          if (Modular.to.path == '/painel') ...[
-            ListTile(
-              title: Text('Home'),
-              onTap: () => Modular.to.navigate('/'),
-            ),
-          ] else ...[
-            ListTile(
-              title: Text('Painel'),
-              onTap: () => Modular.to.navigate('/painel'),
-            ),
+              ListTile(
+                title: Text('Sair'),
+                onTap: () {
+                  loginCtrl.deslogar();
+                },
+              ),
+            ] else ...[
+              ListTile(
+                title: Text('Login'),
+                onTap: () => abrirModalLogin(context),
+              ),
+              ListTile(
+                title: Text('Cadastro'),
+                onTap: () => abrirModalCadastro(context),
+              )
+            ],
           ],
-          if (!loginCtrl.isLogado) ...[
-            ListTile(
-              title: Text('Login'),
-              onTap: () => abrirModalLogin(context),
-            ),
-            ListTile(
-              title: Text('Cadastro'),
-              onTap: () => abrirModalCadastro(context),
-            )
-          ] else ...[
-            ListTile(
-              title: Text('Sair'),
-              onTap: () {
-                loginCtrl.deslogar();
-              },
-            ),
-          ],
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
-  static void abrirModalLogin(BuildContext context) {
-    final loginStore = LoginStore();
-    TextEditingController emailText = TextEditingController();
-    TextEditingController senhaText = TextEditingController();
+  static Future<bool?> abrirModalLogin(BuildContext context) async {
+    final loginCtrl = Modular.get<LoginController>();
+    bool? isCompleted;
+    TextEditingController emailText = TextEditingController(text: '');
+    TextEditingController senhaText = TextEditingController(text: '');
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -230,10 +245,10 @@ class ScaffoldComp extends StatelessWidget {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
-                      errorText: loginStore.errorEmail,
+                      errorText: loginCtrl.errorEmail,
                     ),
                     onChanged: (value) {
-                      loginStore.validarEmail(value);
+                      loginCtrl.validarEmail(value);
                       setState(() {});
                     },
                   ),
@@ -246,10 +261,10 @@ class ScaffoldComp extends StatelessWidget {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
-                      errorText: loginStore.errorSenha,
+                      errorText: loginCtrl.errorSenha,
                     ),
                     onChanged: (value) {
-                      loginStore.validarSenha(value);
+                      loginCtrl.validarSenha(value);
                       setState(() {});
                     },
                   ),
@@ -258,12 +273,10 @@ class ScaffoldComp extends StatelessWidget {
               actions: [
                 OutlinedButton(
                   child: Text('Entrar'),
-                  onPressed: () {
-                    if (loginStore.errorEmail == null &&
-                        loginStore.errorSenha == null) {
-                      Modular.get<LoginController>()
-                          .fazerLogin(emailText.text, senhaText.text);
-                    }
+                  onPressed: () async {
+                    isCompleted = await loginCtrl.fazerLogin(
+                        emailText.text, senhaText.text);
+                    Modular.to.pop();
                   },
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all(
@@ -282,13 +295,13 @@ class ScaffoldComp extends StatelessWidget {
         );
       },
     );
+    return isCompleted;
   }
 
   static void abrirModalCadastro(context) {
     TextEditingController nomeTEdt = TextEditingController();
     TextEditingController emailTEdt = TextEditingController();
     TextEditingController senhaTEdt = TextEditingController();
-    TextEditingController confirmiSenhaTEdt = TextEditingController();
 
     TextEditingController cepTEdt = TextEditingController();
     TextEditingController cidadeTEdt = TextEditingController();
@@ -314,7 +327,7 @@ class ScaffoldComp extends StatelessWidget {
                   TextField(
                     controller: nomeTEdt,
                     decoration: InputDecoration(
-                      label: Text('nome'),
+                      label: Text('Nome'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
@@ -323,7 +336,7 @@ class ScaffoldComp extends StatelessWidget {
                   TextField(
                     controller: emailTEdt,
                     decoration: InputDecoration(
-                      label: Text('e-mail'),
+                      label: Text('E-mail'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
@@ -333,17 +346,17 @@ class ScaffoldComp extends StatelessWidget {
                     controller: senhaTEdt,
                     obscureText: true,
                     decoration: InputDecoration(
-                      label: Text('senha'),
+                      label: Text('Senha'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
                     ),
                   ),
+                  Divider(),
                   TextField(
-                    controller: confirmiSenhaTEdt,
-                    obscureText: true,
+                    controller: nomeEnderecoTEdt,
                     decoration: InputDecoration(
-                      label: Text('confirmi senha'),
+                      label: Text('Nome para o local'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
@@ -358,23 +371,33 @@ class ScaffoldComp extends StatelessWidget {
                       ),
                     ),
                   ),
-                  TextField(
-                    controller: cidadeTEdt,
-                    decoration: InputDecoration(
-                      label: Text('Cidade'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: TextField(
+                          controller: cidadeTEdt,
+                          decoration: InputDecoration(
+                            label: Text('Cidade'),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  TextField(
-                    controller: estadoTEdt,
-                    decoration: InputDecoration(
-                      label: Text('Estado'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: estadoTEdt,
+                          decoration: InputDecoration(
+                            label: Text('Estado'),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                   Row(
                     children: [
@@ -397,7 +420,7 @@ class ScaffoldComp extends StatelessWidget {
                         child: TextField(
                           controller: numeroTEdt,
                           decoration: InputDecoration(
-                            label: Text('numero'),
+                            label: Text('Numero'),
                             border: OutlineInputBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(16)),
@@ -410,16 +433,7 @@ class ScaffoldComp extends StatelessWidget {
                   TextField(
                     controller: bairroTEdt,
                     decoration: InputDecoration(
-                      label: Text('bairro'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                      ),
-                    ),
-                  ),
-                  TextField(
-                    controller: nomeEnderecoTEdt,
-                    decoration: InputDecoration(
-                      label: Text('Nome do endereco'),
+                      label: Text('Bairro'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),

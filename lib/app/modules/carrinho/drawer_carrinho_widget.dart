@@ -1,21 +1,17 @@
-import 'package:e_commerce/app/components/scaffold_comp.dart';
-import 'package:e_commerce/app/model/produto_model.dart';
 import 'package:e_commerce/app/modules/carrinho/carrinho_controller.dart';
-import 'package:e_commerce/app/modules/login/login_controller.dart';
-import 'package:e_commerce/app/util/formatacao_util.dart';
+import 'package:e_commerce/app/util/format_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
 
 class DrawerCarrinhoWidget {
-  final CarrinhoController carrinhoController;
+  final CarrinhoController carrinhoCtrl;
 
-  DrawerCarrinhoWidget(this.carrinhoController);
+  DrawerCarrinhoWidget(this.carrinhoCtrl);
 
   Widget abrirDrawerCarrinho() {
     return Drawer(
+      width: 360,
       child: ListView(
-        controller: ScrollController(),
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
@@ -42,24 +38,24 @@ class DrawerCarrinhoWidget {
                     color: Colors.red,
                   ),
                 ),
-                RxBuilder(builder: (context) {
-                  return Text(
-                    'Total R\$: ${FormatacaoUtil.doubleToReal(carrinhoController.total.value)}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                })
+                RxBuilder(
+                  builder: (context) {
+                    return Text(
+                      'Total R\$: ${FormatUtil.doubleToReal(carrinhoCtrl.total.value)}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                )
               ],
             ),
           ),
           RxBuilder(
             builder: (context) {
-              List<RxNotifier<ProdutoModel?>> produtosNoCarrinho =
-                  carrinhoController.itens.value;
-              return !produtosNoCarrinho.isEmpty
+              return carrinhoCtrl.itens.value.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -81,61 +77,90 @@ class DrawerCarrinhoWidget {
                         ],
                       ),
                     )
-                  : Column(
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          controller: ScrollController(),
-                          itemCount: produtosNoCarrinho.length,
-                          itemBuilder: (context, index) => Card(
-                            child: ListTile(
-                              leading: CircleAvatar(child: FlutterLogo()),
-                              title:
-                                  Text(produtosNoCarrinho[index].value!.nome),
-                              subtitle: Text(
-                                  'R\$ ${FormatacaoUtil.doubleToReal(carrinhoController.itens.value[index].value!.valor)}'),
-                              trailing: Wrap(
-                                alignment: WrapAlignment.center,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  IconButton(
-                                      onPressed: () {
-                                        carrinhoController.alterarQuantidade(
-                                            produtosNoCarrinho[index].value!.id,
-                                            1);
-                                      },
-                                      icon: Icon(Icons.remove)),
-                                  RxBuilder(builder: (context) {
-                                    return Text(
-                                        '${produtosNoCarrinho[index].value!.quantidade}');
-                                  }),
-                                  IconButton(
-                                      onPressed: () {
-                                        carrinhoController.alterarQuantidade(
-                                            produtosNoCarrinho[index].value!.id,
-                                            0);
-                                      },
-                                      icon: Icon(Icons.add)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.all(12),
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            child: Text('Salvar'),
-                            onPressed: () {
-                              if (!Modular.get<LoginController>().isLogado) {
-                                return ScaffoldComp.abrirModalLogin(context);
-                              }
-                              carrinhoController.salvarCarrinho(context);
+                  : Stepper(
+                      elevation: 2,
+                      currentStep: carrinhoCtrl.currentStep.value,
+                      onStepTapped: (value) => carrinhoCtrl.currentStep.value = value,
+                      steps: [
+                        Step(
+                          isActive: carrinhoCtrl.currentStep.value == 0,
+                          title: Text('Itens'),
+                          content: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            itemCount: carrinhoCtrl.itens.value.length,
+                            itemBuilder: (context, index) {
+                              final item =
+                                  carrinhoCtrl.itens.value[index].value;
+                              return Card(
+                                margin: EdgeInsets.symmetric(vertical: 4),
+                                child: ListTile(
+                                  leading: CircleAvatar(child: FlutterLogo()),
+                                  title: Text(
+                                    item!.produto.descricao,
+                                  ),
+                                  subtitle: Text(
+                                    'R\$ ${FormatUtil.doubleToReal(item.total)}',
+                                  ),
+                                  trailing: Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(Icons.remove),
+                                        onPressed: () => carrinhoCtrl
+                                            .alterarQuantidade(
+                                                item.produto.id, 1),
+                                      ),
+                                      Text(
+                                        '${item.quantidade}',
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          carrinhoCtrl.alterarQuantidade(
+                                            item.produto.id,
+                                            0,
+                                          );
+                                        },
+                                        icon: Icon(Icons.add),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         ),
+                        Step(
+                          isActive: carrinhoCtrl.currentStep.value == 1,
+                          title: Text('Entrega'),
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [],
+                          ),
+                        ),
+                        Step(
+                          isActive: carrinhoCtrl.currentStep.value == 2,
+                          title: Text('Pagamento'),
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [],
+                          ),
+                        ),
                       ],
+                      controlsBuilder: (BuildContext context, ControlsDetails detaisCtrl) {
+                        return Container(
+                          padding: EdgeInsets.only(top: 22, right: 22),
+                          alignment: Alignment.bottomRight,
+                          child: ElevatedButton(
+                            child: Wrap(
+                              children: [Icon(Icons.done), Text(' Continuar')],
+                            ),
+                            onPressed: () async => await carrinhoCtrl.progressStep(context),
+                          ),
+                        );
+                      },
                     );
             },
           ),
