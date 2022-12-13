@@ -2,7 +2,7 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class EnderecoModel {
-  int id;
+  int? id;
   String descricao;
   String cep;
   String logradouro;
@@ -11,7 +11,7 @@ class EnderecoModel {
   String uf;
 
   EnderecoModel({
-    required this.id,
+    this.id,
     required this.descricao,
     required this.cep,
     required this.bairro,
@@ -34,7 +34,7 @@ class EnderecoModel {
 
   factory EnderecoModel.fromMap(Map<String, dynamic> map) {
     return EnderecoModel(
-      id: map['id'] as int,
+      id: map['id'] != null ? map['id'] as int : null,
       descricao: map['descricao'] as String,
       cep: map['cep'] as String,
       logradouro: map['logradouro'] as String,

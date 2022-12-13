@@ -96,28 +96,30 @@ class ScaffoldComp extends StatelessWidget {
               if (carrinhoCtrl != null) ...[
                 if (MediaQuery.of(context).size.width > 800 &&
                     !Modular.get<LoginController>().isLogado) ...[
-                  InkWell(
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.login,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6, right: 18),
-                          child: Text(
-                            'Faça seu login.\nOu cadastre-se!',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
+                  Builder(builder: (context) {
+                    return InkWell(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.login,
+                            color: Colors.white,
+                            size: 28,
                           ),
-                        )
-                      ],
-                    ),
-                    onTap: () => abrirModalLogin(context),
-                  ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 6, right: 18),
+                            child: Text(
+                              'Faça seu login.\nOu cadastre-se!',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      onTap: () => Scaffold.of(context).openDrawer(),
+                    );
+                  }),
                 ],
                 RxBuilder(
                   builder: (context) {
@@ -274,9 +276,7 @@ class ScaffoldComp extends StatelessWidget {
                 OutlinedButton(
                   child: Text('Entrar'),
                   onPressed: () async {
-                    isCompleted = await loginCtrl.fazerLogin(
-                        emailText.text, senhaText.text);
-                    Modular.to.pop();
+                     await loginCtrl.fazerLogin(UsuarioModel(email: emailText.text, senha: senhaText.text, permissao: 1), context);     
                   },
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all(
@@ -302,7 +302,6 @@ class ScaffoldComp extends StatelessWidget {
     TextEditingController nomeTEdt = TextEditingController();
     TextEditingController emailTEdt = TextEditingController();
     TextEditingController senhaTEdt = TextEditingController();
-
     TextEditingController cepTEdt = TextEditingController();
     TextEditingController cidadeTEdt = TextEditingController();
     TextEditingController estadoTEdt = TextEditingController();
@@ -310,6 +309,7 @@ class ScaffoldComp extends StatelessWidget {
     TextEditingController numeroTEdt = TextEditingController();
     TextEditingController bairroTEdt = TextEditingController();
     TextEditingController nomeEnderecoTEdt = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) {
@@ -324,6 +324,7 @@ class ScaffoldComp extends StatelessWidget {
                 spacing: 8.0,
                 runSpacing: 12.0,
                 children: [
+                  SizedBox(height: 8),
                   TextField(
                     controller: nomeTEdt,
                     decoration: InputDecoration(
@@ -380,7 +381,8 @@ class ScaffoldComp extends StatelessWidget {
                           decoration: InputDecoration(
                             label: Text('Cidade'),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(16)),
                             ),
                           ),
                         ),
@@ -392,7 +394,8 @@ class ScaffoldComp extends StatelessWidget {
                           decoration: InputDecoration(
                             label: Text('Estado'),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(16)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(16)),
                             ),
                           ),
                         ),
@@ -446,19 +449,17 @@ class ScaffoldComp extends StatelessWidget {
           actions: [
             OutlinedButton(
               child: Text('Salvar'),
-              onPressed: () {
-                Modular.get<ClienteController>().cadastrar(
+              onPressed: () async {
+                await Modular.get<ClienteController>().cadastrar(
                   ClienteModel(
-                    id: 0,
-                    nome: nomeEnderecoTEdt.text,
+                    nome: nomeTEdt.text,
                     usuario: UsuarioModel(
-                        id: 0,
-                        email: emailTEdt.text,
-                        senha: senhaTEdt.text,
-                        permissao: 0),
+                      email: emailTEdt.text,
+                      senha: senhaTEdt.text,
+                      permissao: 0,
+                    ),
                     enderecos: [
                       EnderecoModel(
-                        id: 0,
                         descricao: nomeEnderecoTEdt.text,
                         cep: cepTEdt.text,
                         bairro: bairroTEdt.text,

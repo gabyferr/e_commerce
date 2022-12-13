@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'package:e_commerce/app/components/scaffold_comp.dart';
-import 'package:e_commerce/app/components/snackbar_comp.dart';
 import 'package:e_commerce/app/model/item_pedido_model.dart';
+import 'package:e_commerce/app/model/pedido_model.dart';
 import 'package:e_commerce/app/model/produto_model.dart';
 import 'package:e_commerce/app/modules/login/login_controller.dart';
+import 'package:e_commerce/app/util/url_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
+import 'package:http/http.dart' as http;
 
 class CarrinhoController extends ChangeNotifier {
   final itens = RxNotifier<List<RxNotifier<ItemPedidoModel?>>>([]);
@@ -56,19 +59,43 @@ class CarrinhoController extends ChangeNotifier {
 
   RxNotifier<ItemPedidoModel?> isInListItens(int id) => itens.value.firstWhere((item) => item.value!.produto.id == id, orElse: () => RxNotifier(null));
 
+  final tipoPagamento = RxNotifier<int>(0);
+  void setPagamento(int value) => tipoPagamento.value = value;
+
   final currentStep = RxNotifier<int>(0);
   Future<void> progressStep(BuildContext context) async {
     if (currentStep.value == 0 && !Modular.get<LoginController>().isLogado) {
       if (!(await ScaffoldComp.abrirModalLogin(context) ?? false)) {
-        SnackbarComp.build(context, 'Atenção', 'Usuario ou senha incorretos');
         return;
       }
     }
     if (currentStep.value == 2) {
-      //! enviar pedido para a api
+      await enviaPedido();
       Modular.dispose<CarrinhoController>();
       return Modular.to.navigate('/painel');
     }
     currentStep.value++;
   }
+
+  Future<bool> enviaPedido() async {
+    PedidoModel pedido = PedidoModel(
+      cliente: Modular.get<LoginController>().userAtual.value!, 
+      dataEfetuado: DateTime.now().toString(), 
+      total: total.value, 
+      tipoPagamento: tipoPagamento.value, 
+      itens: itens.value.map((e) => e.value).toList().cast<ItemPedidoModel>(), 
+      status: 1
+    );
+    Uri url = Uri.http(UrlUltil.apiServer, '/pedido');
+      http.Response response = await http.post(
+        url,
+        body: jsonEncode(pedido.toMap()),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        return true;
+      }
+    return false;
+  }
+
 }

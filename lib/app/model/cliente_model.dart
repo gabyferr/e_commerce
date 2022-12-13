@@ -5,13 +5,13 @@ import 'package:e_commerce/app/model/usuario_model.dart';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class ClienteModel {
-  int id;
+  int? id;
   String nome;
   UsuarioModel usuario;
   List<EnderecoModel> enderecos;
 
   ClienteModel({
-    required this.id,
+    this.id,
     required this.nome,
     required this.usuario,
     required this.enderecos,
@@ -28,14 +28,10 @@ class ClienteModel {
 
   factory ClienteModel.fromMap(Map<String, dynamic> map) {
     return ClienteModel(
-      id: map['id'] as int,
+      id: map['id'] != null ? map['id'] as int : null,
       nome: map['nome'] as String,
-      usuario: UsuarioModel.fromMap(map['usuario'] as Map<String, dynamic>),
-      enderecos: List<EnderecoModel>.from(
-        (map['enderecos'] as List<int>).map<EnderecoModel>(
-          (x) => EnderecoModel.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
+      usuario: UsuarioModel.fromMap(map['usuario'] as Map<String,dynamic>),
+      enderecos: List<EnderecoModel>.from((map['enderecos']).map<EnderecoModel>((x) => EnderecoModel.fromMap(x as Map<String,dynamic>),),),
     );
   }
 

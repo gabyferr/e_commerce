@@ -27,10 +27,10 @@ class ItemPedidoModel {
 
   factory ItemPedidoModel.fromMap(Map<String, dynamic> map) {
     return ItemPedidoModel(
-      id: map['id'] as int,
+      id: map['id'],
       quantidade: map['quantidade'] as int,
       total: map['total'] as double,
-      produto: ProdutoModel.fromMap(map['produtoModel'] as Map<String,dynamic>),
+      produto: ProdutoModel.fromMap(map['produto'] as Map<String,dynamic>),
     );
   }
 

@@ -2,13 +2,13 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class UsuarioModel {
-  int id;
+  int? id;
   String email;
   String senha;
   int permissao;
   
   UsuarioModel({
-    required this.id,
+    this.id,
     required this.email,
     required this.senha,
     required this.permissao,
@@ -25,7 +25,7 @@ class UsuarioModel {
 
   factory UsuarioModel.fromMap(Map<String, dynamic> map) {
     return UsuarioModel(
-      id: map['id'] as int,
+      id: map['id'] != null ? map['id'] as int : null,
       email: map['email'] as String,
       senha: map['senha'] as String,
       permissao: map['permissao'] as int,

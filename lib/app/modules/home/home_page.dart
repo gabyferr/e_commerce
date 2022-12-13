@@ -4,7 +4,6 @@ import 'package:e_commerce/app/model/produto_model.dart';
 import 'package:e_commerce/app/modules/carrinho/carrinho_controller.dart';
 import 'package:e_commerce/app/modules/produto/produto_service.dart';
 import 'package:e_commerce/app/util/format_util.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:rx_notifier/rx_notifier.dart';
