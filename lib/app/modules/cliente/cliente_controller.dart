@@ -12,17 +12,17 @@ class ClienteController {
   Future<void> cadastrar(ClienteModel cliente, BuildContext context) async {
     if (cliente.nome == '' ||
         cliente.usuario.email == '' ||
-        cliente.usuario.senha == '' ||
+        cliente.usuario.senha.length < 4 ||
         cliente.enderecos.first.bairro == '' ||
         cliente.enderecos.first.cep == '' ||
         cliente.enderecos.first.descricao == '' ||
         cliente.enderecos.first.localidade == '' ||
         cliente.enderecos.first.logradouro == '' ||
         cliente.enderecos.first.uf == '') {
-      SnackbarComp.build(
+      return SnackbarComp.build(
         context,
-        'Atencao',
-        'todos os campos sao obrigatorios',
+        'Atenção',
+        'todos os campos sao obrigatórios',
       );
     }
 
@@ -33,14 +33,15 @@ class ClienteController {
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode == 200) {
-      SnackbarComp.build(context, '', 'Cadastrado com sucesso!', AnimatedSnackBarType.success);
+      SnackbarComp.build(
+          context, '', 'Cadastrado com sucesso!', AnimatedSnackBarType.success);
       Modular.get<LoginController>().setUser(cliente);
       Modular.to.pop();
     } else {
       SnackbarComp.build(
         context,
         'Erro',
-        'nao foi possivel enviar os dados para api',
+        'não foi possível enviar os dados para api',
       );
     }
   }

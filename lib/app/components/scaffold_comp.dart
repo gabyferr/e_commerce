@@ -175,17 +175,11 @@ class ScaffoldComp extends StatelessWidget {
       return Drawer(
         child: ListView(
           children: [
-            DrawerHeader(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 46,
-                    child: Image.asset(
-                      'assets/img/logo.png',
-                    ),
-                  ),
-                  Text('Menu', style: TextStyle(fontWeight: FontWeight.bold)),
-                ],
+            SizedBox(
+              width: 360,
+              height: 200,
+              child: Image.asset(
+                'assets/img/logo.png',
               ),
             ),
             if (loginCtrl.isLogado) ...[
@@ -276,7 +270,12 @@ class ScaffoldComp extends StatelessWidget {
                 OutlinedButton(
                   child: Text('Entrar'),
                   onPressed: () async {
-                     await loginCtrl.fazerLogin(UsuarioModel(email: emailText.text, senha: senhaText.text, permissao: 1), context);     
+                    await loginCtrl.fazerLogin(
+                        UsuarioModel(
+                            email: emailText.text,
+                            senha: senhaText.text,
+                            permissao: 1),
+                        context);
                   },
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all(

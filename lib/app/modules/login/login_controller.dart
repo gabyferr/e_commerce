@@ -17,16 +17,16 @@ class LoginController {
   String? errorSenha = '';
 
   void validarEmail(value) {
-    if (value.length < 7) {
-      errorEmail = 'Email invalido';
+    if (value.length < 6) {
+      errorEmail = 'Email inválido';
     } else {
       errorEmail = null;
     }
   }
 
   void validarSenha(value) {
-    if (value.length < 6) {
-      errorSenha = 'Senha invalido';
+    if (value.length < 4) {
+      errorSenha = 'Senha inválido';
     } else {
       errorSenha = null;
     }
@@ -48,7 +48,7 @@ class LoginController {
     SnackbarComp.build(
       context,
       'Erro',
-      'Credenciais invalidas',
+      'Credenciais inválidas',
     );
   }
 

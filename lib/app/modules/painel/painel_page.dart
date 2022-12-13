@@ -4,6 +4,7 @@ import 'package:e_commerce/app/modules/painel/painel_controller.dart';
 import 'package:e_commerce/app/util/format_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:intl/intl.dart';
 
 class PainelPage extends StatefulWidget {
   const PainelPage({Key? key}) : super(key: key);
@@ -26,28 +27,31 @@ class _PainelPageState extends State<PainelPage> {
               alignment: Alignment.topCenter,
               constraints: BoxConstraints(maxWidth: 800),
               child: FutureBuilder(
-                future: painelCtrl.buscarPedidosCliente(),
-                builder: (BuildContext context, AsyncSnapshot<List<PedidoModel>?> snapshot) {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemCount: snapshot.data?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      PedidoModel pedido = snapshot.data![index];
-                      return Card(
-                        child: ListTile(
-                          title: Text(pedido.dataEfetuado),
-                          subtitle: Text(FormatUtil.doubleToReal(pedido.total)),
-                          trailing: IconButton(
-                            icon: Icon(Icons.open_in_new),
-                            onPressed: () {},
+                  future: painelCtrl.buscarPedidosCliente(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<PedidoModel>?> snapshot) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      itemCount: snapshot.data?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        PedidoModel pedido = snapshot.data![index];
+
+                        return Card(
+                          child: ListTile(
+                            title: Text(DateFormat('dd/MM/yyyy - HH:mm')
+                                .format(DateTime.parse(pedido.dataEfetuado))),
+                            subtitle:
+                                Text(FormatUtil.doubleToReal(pedido.total)),
+                            trailing: IconButton(
+                              icon: Icon(Icons.open_in_new),
+                              onPressed: () {},
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                }
-              ),
+                        );
+                      },
+                    );
+                  }),
             ),
           ),
         ],
